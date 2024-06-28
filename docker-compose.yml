@@ -1,0 +1,131 @@
+version: '3.8'
+
+services:
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - 22181:2181
+    deploy:
+      placement:
+        constraints:
+          - node.labels.role == manager
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    ports:
+      - 19092:19092
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:19092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_BROKER_ID: 1
+      KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+    deploy:
+      placement:
+        constraints:
+          - node.labels.role == manager
+
+  registry:
+    image: pingaspider/registry2:latest
+    ports:
+      - "443:443"
+    environment:
+      - HOST_REGISTRY=registry  # El nombre del servicio en Docker Compose
+      - PORT_REGISTRY=443           # El puerto expuesto por el servicio
+    volumes:
+      - shared_data:/app/data
+    deploy:
+      placement:
+        constraints:
+          - node.labels.role == manager
+
+  weather:
+    image: pingaspider/weather2:latest
+    ports:
+      - "6666:6666" # Asumiendo que el servicio Weather escucha en el puerto 6666
+    environment:
+      - HOST_WEATHER=weather
+      - PORT_WEATHER=6666
+    stdin_open: true  # mantiene STDIN abierto incluso si no está adjunto
+    tty: true # asigna un pseudo-TTY
+    deploy:
+      placement:
+        constraints:
+          - node.labels.role == worker-weather
+
+  engine:
+    image: pingaspider/engine2:latest
+    environment:
+      - HOST_ENGINE=engine
+      - PORT_ENGINE=5555
+      - HOST_BROKER=kafka
+      - PORT_BROKER=19092
+      - HOST_WEATHER=weather
+      - PORT_WEATHER=6666
+      - PORT_ENGINE2=64566
+      - PORT_FRONT=5005
+      - HOST_FRONT=front
+    depends_on:
+      - kafka
+    volumes:
+      - shared_data:/app/data
+      - clave_data:/app/clave
+    stdin_open: true  # mantiene STDIN abierto incluso si no está adjunto
+    tty: true # asigna un pseudo-TTY
+    deploy:
+      placement:
+        constraints:
+          - node.labels.role == manager
+
+  dron:
+    image: pingaspider/dron2:latest
+    environment:
+      - HOST_REGISTRY=registry
+      - PORT_REGISTRY=443
+      - HOST_ENGINE=engine
+      - PORT_ENGINE=5555
+      - HOST_BROKER=kafka
+      - PORT_BROKER=19092
+      - PORT_ENGINE2=64566
+    depends_on:
+      - kafka
+    deploy:
+      replicas: 5
+      placement:
+        constraints:
+          - node.labels.role == worker-dron
+    volumes:
+      - clave_data:/app/clave
+    stdin_open: true  # mantiene STDIN abierto incluso si no está adjunto
+    tty: true # asigna un pseudo-TTY
+
+  front:
+    image: pingaspider/front2:latest
+    environment:
+      - HOST_FRONT=front
+      - NODE_ENV=production
+      - PORT_FRONT=5005
+    ports:
+      - "5005:5005"
+    volumes:
+      - /app/node_modules
+    depends_on:
+      - engine
+    deploy:
+      placement:
+        constraints:
+          - node.labels.role == manager
+
+volumes:
+  shared_data:
+  clave_data:

@@ -1,0 +1,98 @@
+/* Estilos generales de la página */
+/*fuente de la pagina estilo courier new*/
+
+html, body{
+    height: 100%;  /* Asegura que el html y body ocupen al menos todo el viewport */
+    margin: 0;     /* Remueve márgenes predeterminados */
+}
+
+body {
+    font-family: 'Courier New', Courier, monospace;
+    display: block;
+}
+
+/*id = nombre-pagina arriba y en el centro de la pagina*/
+#nombre-pagina {
+    /*centrado horizontal*/
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    margin-top: 0px;
+    background-color: steelblue;
+    color: white;
+    width: 100%;
+}
+
+/*map-section debajo de nombre-pagina y en el centro horizontal*/
+#map-section {
+    /*centrado horizontal*/
+    display: block;
+    text-align: center;
+    margin-top: 10px;
+}
+
+/*drone-section debajo de map-section y centrado horizontalmente*/
+#drones-section {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+/*map-section > div confirm-section desplazar 5px a la izquierda */
+#map-section > div.confirm-section {
+    margin-top: auto;
+    text-align: center;
+    width: 100%;
+}
+
+#messages-section {
+    display: inline-block;
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    width: 50%;
+}
+
+/*audit-section a la derecha de la pagina en la zona baja*/
+#audit-section {
+    display: inline-block;
+    /*texto centrado horizontalmente*/
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    width: 49%;
+}
+
+
+
+/*footer debajo de drone-section y centrado horizontalmente* y los <p> uno al lado del otro y en la zona mas baja de la pagina*/
+footer{
+    margin-top: 50px;
+    background-color: steelblue;
+    color: white;
+    width: 100%;
+    /*texto uno al lado del otro*/
+    display: flex;
+    justify-content: center;
+    /*zona mas baja de la pagina*/
+    position: relative;
+    bottom: 0;
+    height: 50px;
+    /*centrado vertical del texto*/
+    text-align: center;
+    /*margen entre los <p>*/
+}
+
+footer > p {
+    margin-bottom: 0px;
+    margin-left: 10px;
+    /*poner el texto al final de la pagina*/
+    align-self: flex-end;
+}
+/*Mantener el footer en la parte inferior de la pagina debajo del body*/
+footer {
+    position: absolute;
+    bottom: 0;
+}

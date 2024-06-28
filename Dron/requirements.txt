@@ -1,0 +1,5 @@
+kafka-python
+colorama
+cryptography
+requests
+urllib3

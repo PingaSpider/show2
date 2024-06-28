@@ -1,0 +1,23 @@
+# Dockerfile para Engine
+FROM python:3.9
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Crea el directorio para los archivos de datos y asegura los permisos adecuados
+RUN mkdir -p /app/data && chmod 777 /app/data
+RUN mkdir -p /app/file && chmod 777 /app/file
+RUN mkdir -p /app/clave && chmod 777 /app/clave
+RUN mkdir -p /app/audit_logs/ && chmod 777 /app/audit_logs/
+
+COPY AD_Engine.py /app
+COPY Mapa.py /app
+COPY Mapa2.py /app
+COPY ./figures.json /app/file
+COPY ./last_updates.json /app/file
+
+
+CMD ["python", "AD_Engine.py"]
+

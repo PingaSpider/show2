@@ -1,0 +1,11 @@
+kafka-python
+colorama
+#necesario para criptografia
+cryptography
+datetime
+flask
+flask_socketio
+requests
+geopy
+
+
